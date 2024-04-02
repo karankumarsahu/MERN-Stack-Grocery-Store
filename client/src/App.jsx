@@ -7,6 +7,8 @@ import Header from "./components/Header/Header";
 const Home = lazy(() => import("./pages/Home"));
 const Login = lazy(() => import("./pages/Login"));
 const Dashboard = lazy(() => import("./pages/Admin/AdminDashboard"));
+const Category = lazy(() => import("./pages/Category"));
+const MyOrders = lazy(() => import("./pages/MyOrders"));
 
 const user = true;
 
@@ -29,6 +31,9 @@ const App = () => {
             {/* Logged In User Routes */}
             <Route element={<ProtectedRoute isAuthenticated={user} />}>
               <Route path="/" element={<Home />} />
+              <Route path="/category/:categoryName" element={<Category />} />
+              <Route path="/myorders" element={<MyOrders />} />
+              
             </Route>
 
             {/* Admin Routes */}

@@ -22,6 +22,7 @@ import BakeryImg from "../../assets/Bakery Category.png";
 import PersonalCareImg from "../../assets/Personal Care Category.png";
 import GrainsImg from "../../assets/Grains Category.png";
 import SnaksImg from "../../assets/Snaks Category.png";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 
 const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
@@ -51,6 +52,12 @@ const Header = () => {
     setIsCategoryOpen(event.currentTarget);
   };
 
+  const navigate = useNavigate();
+
+  const handleNavigate = () => {
+    navigate("/");
+  };
+
   return (
     <>
       <Box sx={{ width: "100%", height: "90px" }}>
@@ -75,7 +82,8 @@ const Header = () => {
             {/* Left Side */}
             <Stack direction="row" alignItems={"center"} gap={4}>
               <img
-                style={{ width: "10rem", height: "auto" }}
+                onClick={handleNavigate}
+                style={{ width: "10rem", height: "auto", cursor: "pointer" }}
                 src={logo}
                 alt=""
               />
@@ -391,13 +399,17 @@ const CartItem = ({ itemImage, itemName, itemPrice, itemQuantity }) => {
 
 const CategoryMenu = ({ anchorEl, handleClose, open }) => {
   const categoryList = [
-    { name: "Fruits", image: FruitsImg },
-    { name: "Vegetables", image: VegetablesImg },
-    { name: "Drinks", image: DrinksImg },
-    { name: "Bakery", image: BakeryImg },
-    { name: "Personal Care", image: PersonalCareImg },
-    { name: "Grains", image: GrainsImg },
-    { name: "Snaks", image: SnaksImg },
+    { name: "Fruits", image: FruitsImg, link: "/category/fruits" },
+    { name: "Vegetables", image: VegetablesImg, link: "/category/vegetables" },
+    { name: "Drinks", image: DrinksImg, link: "/category/drinks" },
+    { name: "Bakery", image: BakeryImg, link: "/category/bakery" },
+    {
+      name: "Personal Care",
+      image: PersonalCareImg,
+      link: "/category/personal_care",
+    },
+    { name: "Grains", image: GrainsImg, link: "/category/grains" },
+    { name: "Snaks", image: SnaksImg, link: "/category/snaks" },
   ];
 
   return (
@@ -445,7 +457,15 @@ const CategoryMenu = ({ anchorEl, handleClose, open }) => {
             src={category.image}
             alt=" fruits"
           />
-          <Typography sx={{ fontFamily: "Poppins, sans-serif" }}>
+          <Typography
+            component={Link}
+            to={category.link}
+            sx={{
+              fontFamily: "Poppins, sans-serif",
+              textDecoration: "none",
+              color: "black",
+            }}
+          >
             {category.name}
           </Typography>
         </MenuItem>
@@ -475,7 +495,7 @@ const ProfileMenu = ({ anchorEl, handleClose, open }) => {
       }}
     >
       <MenuItem onClick={handleClose}>Profile</MenuItem>
-      <MenuItem onClick={handleClose}>My Orders</MenuItem>
+      <MenuItem component={Link} to="/myorders"  onClick={handleClose}>My Orders</MenuItem>
       <MenuItem onClick={handleClose}>Logout</MenuItem>
     </Menu>
   );
