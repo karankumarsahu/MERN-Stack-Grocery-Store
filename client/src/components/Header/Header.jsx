@@ -329,6 +329,8 @@ const CartDrawer = ({ toggleDrawer, open, setOpen }) => {
               </Typography>
             </Stack>
             <Button
+            component={Link}
+            to="/checkout"
               variant="contained"
               fullWidth
               sx={{
@@ -479,6 +481,7 @@ const ProfileMenu = ({ anchorEl, handleClose, open }) => {
     <Menu
       anchorEl={anchorEl}
       open={open}
+      onClick={handleClose}
       onClose={handleClose}
       MenuListProps={{
         "aria-labelledby": "basic-button",
