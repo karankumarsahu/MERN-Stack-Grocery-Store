@@ -1,6 +1,15 @@
 import NorthIcon from "@mui/icons-material/North";
 import Person2Icon from "@mui/icons-material/Person2";
-import { Box, Button, Divider, Menu, MenuItem, Paper, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Divider,
+  Menu,
+  MenuItem,
+  Paper,
+  Stack,
+  Typography
+} from "@mui/material";
 import { defaults } from "chart.js/auto";
 import React from "react";
 import { Doughnut, Line } from "react-chartjs-2";
@@ -57,18 +66,21 @@ const AdminDashboard = () => {
                 mb: "1rem",
               }}
             >
-              <Person2Icon onClick={handleClick} sx={{ width: "2rem", height: "2rem", cursor: "pointer" }} />
+              <Person2Icon
+                onClick={handleClick}
+                sx={{ width: "2rem", height: "2rem", cursor: "pointer" }}
+              />
               <Menu
-        id="basic-menu"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        MenuListProps={{
-          'aria-labelledby': 'basic-button',
-        }}
-      >
-        <MenuItem onClick={handleClose}>Log Out</MenuItem>
-      </Menu>
+                id="basic-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                MenuListProps={{
+                  "aria-labelledby": "basic-button",
+                }}
+              >
+                <MenuItem onClick={handleClose}>Log Out</MenuItem>
+              </Menu>
             </Box>
             <Divider />
 
