@@ -8,8 +8,46 @@ import {
 } from "@mui/material";
 import React from "react";
 import razarpay from "../assets/Razarpay.svg";
+import axios from "axios";
+import logo from "../assets/logo.png";
 
 const Checkout = () => {
+  const checkoutHandler = async () => {
+    const {
+      data: { key, order },
+    } = await axios.post("http://localhost:8000/api/payment/razorpay", {
+      amount: "500",
+    });
+
+    console.log(order);
+
+    const options = {
+      key: key,
+      amount: "50000",
+      currency: "INR",
+      name: "Grocery Store",
+      description: "This is a test mode payment",
+      image: logo,
+      order_id: order.id,
+      callback_url: "http://localhost:8000/api/payment/paymentverification",
+      prefill: {
+        name: "Karan Sahu",
+        email: "example@example.com",
+        contact: "9000090000",
+      },
+      notes: {
+        address: "Razorpay Corporate Office",
+      },
+      theme: {
+        color: "#3399cc",
+      },
+    };
+    const razor = new window.Razorpay(options);
+      razor.open();
+  }
+
+  
+
   return (
     <>
       <Box sx={{ width: "100%", height: "auto", mb: "2rem" }}>
@@ -214,7 +252,7 @@ const Checkout = () => {
                   </Typography>
                 </Stack>
                 <Button
-                  disabled
+                  onClick={checkoutHandler}
                   fullWidth
                   size="small"
                   variant="contained"

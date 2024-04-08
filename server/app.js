@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import Razarpay from "razorpay";
 
 const app = express();
 
@@ -14,23 +15,27 @@ app.use(cors({
     methods: "GET,POST,PUT,DELETE,PATCH"
 }))
 
-// app.use(session({
-//     secret: process.env.SESSION_SECRET || "XXXXXXXXXXXXXXXXXXXXX",
-//     resave: false,
-//     saveUninitialized: false,
-// }))
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.use(cookieParser());
 
+export const instance = new Razarpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+})
+
 
 // Importing Routes
 import userRoutes from "./routes/user.route.js";
 import productRoutes from  "./routes/product.route.js";
+import orderRoutes from "./routes/order.route.js";
+import paymentRoutes from "./routes/payment.route.js";
 
 app.use("/api/user", userRoutes);
 app.use("/api/product", productRoutes);
+app.use("/api/order", orderRoutes);
+app.use("/api/payment", paymentRoutes);
 
 export default app;
