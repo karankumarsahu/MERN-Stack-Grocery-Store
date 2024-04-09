@@ -12,32 +12,58 @@ import {
 import logo from "../assets/logo.png";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useLoginMutation, useRegisterMutation } from "../redux/api/userApi";
+import { useNavigate } from "react-router-dom";
+import {useDispatch} from "react-redux"
+import { userExists } from "../redux/reducer/userReducer";
 
 const Login = () => {
-  const [isLogIn, setIsLogIn] = useState(false);
+  const [isLogIn, setIsLogIn] = useState(true);
   const [username, setUsername] = useState("");
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = (e) => {
+  const [login, { isLoading: isLoginLoading }] = useLoginMutation();
+
+  const navigate = useNavigate();
+  
+  const handleLogin = async (e) => {
     e.preventDefault();
 
     if (!email || !password) return toast.error("All fields are required");
+    try {
+      const res = await login({ email, password });
+      toast.success(res.data.message);
+      setEmail("");
+      setPassword("");
+      navigate("/");
+    } catch (error) {
+      toast.error("Login failed. Please try again.");
+      console.log(error);
+    }
 
-    console.log(email, password);
-    setEmail("");
-    setPassword("");
+   
   };
 
-  const handleSignup = (e) => {
-    e.preventDefault();
-    if (!username || !email || !password)
-      return toast.error("All fields are required");
+  const [register, { isLoading }] = useRegisterMutation();
 
-    console.log(username, email, password);
-    setUsername("");
-    setEmail("");
-    setPassword("");
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    if (!username || !fullName || !email || !password)
+      return toast.error("All fields are required");
+    try {
+      const res = await register({ username, fullName, email, password });
+      toast.success(res.data.message);
+      setUsername("");
+      setFullName("");
+      setEmail("");
+      setPassword("");
+      setIsLogIn(true);
+    } catch (error) {
+      toast.error("Registration failed. Please try again.");
+      console.log(error);
+    }
   };
 
   return (
@@ -108,6 +134,7 @@ const Login = () => {
                     label="Password"
                   />
                   <Button
+                    disabled={isLoginLoading}
                     fullWidth
                     type="submit"
                     variant="contained"
@@ -194,7 +221,14 @@ const Login = () => {
                     fullWidth
                     label="Username"
                   />
-                  {/* Emal */}
+                  {/* Full Name */}
+                  <TextField
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    fullWidth
+                    label="Full Name"
+                  />
+                  {/* Email */}
                   <TextField
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -211,6 +245,7 @@ const Login = () => {
                     label="Password"
                   />
                   <Button
+                    disabled={isLoading}
                     fullWidth
                     type="submit"
                     variant="contained"

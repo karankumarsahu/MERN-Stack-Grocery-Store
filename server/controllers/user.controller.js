@@ -58,19 +58,17 @@ export const userLogin = async (req, res) => {
 
         const options = {
             httpOnly: true,
-            secure: true
+            secure: true,
+            maxAge: 1000 * 60 * 60 * 24, // 1 day            
         };
 
         const token = generateAccessToken(user._id);
 
-
-        res.status(200)
-            .cookie("accessToken", token, options)
-            .json({
-                message: "User logged in successfully",
-                user,
-                token
-            });
+        res.status(200).cookie("accessToken", token, options).json({
+            message: "User logged in successfully",
+            user,
+            token
+        });
 
     } catch (error) {
         res.status(500).json({
@@ -96,21 +94,21 @@ export const userLogout = async (req, res) => {
 export const getUserDetails = async (req, res) => {
     try {
         const _id = req.user._id;
-    
+
         if (!_id) {
             return res.status(401).json({
                 message: "Unauthorized"
             });
         }
-    
+
         const user = await User.findById(_id);
-    
+
         if (!user) {
             return res.status(404).json({
                 message: "User not found"
             });
         }
-    
+
         res.status(200).json({
             message: "User details fetched successfully",
             user

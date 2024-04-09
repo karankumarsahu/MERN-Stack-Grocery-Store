@@ -14,15 +14,19 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import logo from "../../assets/logo.png";
-import FruitsImg from "../../assets/Fruits Category.png";
-import VegetablesImg from "../../assets/Vegetables Category.png";
-import DrinksImg from "../../assets/Drinks Category.png";
+import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
 import BakeryImg from "../../assets/Bakery Category.png";
-import PersonalCareImg from "../../assets/Personal Care Category.png";
+import DrinksImg from "../../assets/Drinks Category.png";
+import FruitsImg from "../../assets/Fruits Category.png";
 import GrainsImg from "../../assets/Grains Category.png";
+import PersonalCareImg from "../../assets/Personal Care Category.png";
 import SnaksImg from "../../assets/Snaks Category.png";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import VegetablesImg from "../../assets/Vegetables Category.png";
+import logo from "../../assets/logo.png";
+import { useLogoutMutation } from "../../redux/api/userApi";
+import { userNotExists } from "../../redux/reducer/userReducer";
 
 const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
@@ -477,6 +481,25 @@ const CategoryMenu = ({ anchorEl, handleClose, open }) => {
 };
 
 const ProfileMenu = ({ anchorEl, handleClose, open }) => {
+  
+  const [logout, { isLoading }] = useLogoutMutation();
+  const dipatch = useDispatch();
+  
+   const handleLogout = async () => {
+    try {
+      const res =  await logout(); 
+      dipatch(userNotExists());
+      if(res.data) {
+        toast.success("Logged out successfully!");
+      }
+      handleClose(); 
+    } catch (error) {
+      console.error("Logout failed:", error);
+      // Handle logout error if necessary
+      toast.error("Logout failed. Please try again.");
+    }
+  };
+  
   return (
     <Menu
       anchorEl={anchorEl}
@@ -499,7 +522,7 @@ const ProfileMenu = ({ anchorEl, handleClose, open }) => {
     >
       <MenuItem onClick={handleClose}>Profile</MenuItem>
       <MenuItem component={Link} to="/myorders"  onClick={handleClose}>My Orders</MenuItem>
-      <MenuItem onClick={handleClose}>Logout</MenuItem>
+      <MenuItem onClick={handleLogout}>Logout</MenuItem>
     </Menu>
   );
 };

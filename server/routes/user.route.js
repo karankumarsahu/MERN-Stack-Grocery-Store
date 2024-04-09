@@ -9,7 +9,7 @@ router.post("/register", userRegister)
 
 router.post("/login", userLogin)
 
-router.get("/logout", userLogout)
+router.post("/logout", userLogout)
 
 router.get("/getuser", verifyToken, getUserDetails)
 

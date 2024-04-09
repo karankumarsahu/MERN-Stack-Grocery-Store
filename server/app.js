@@ -10,9 +10,8 @@ dotenv.config();
 
 app.use(cors({
     origin: process.env.CORS_ORIGIN || "XXXXXXXXXXXXXXXXXXXXX",
+    methods: "GET,POST,PUT,DELETE,PATCH",
     credentials: true,
-    optionsSuccessStatus: 200,
-    methods: "GET,POST,PUT,DELETE,PATCH"
 }))
 
 
@@ -20,6 +19,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.use(cookieParser());
+
 
 export const instance = new Razarpay({
     key_id: process.env.RAZORPAY_KEY_ID,
