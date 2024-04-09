@@ -13,6 +13,8 @@ const paymentSchema = mongoose.Schema({
         type: String,
         required: true
     }
+}, {
+    timestamps: true
 })
 
 export const Payment = mongoose.model("Payment", paymentSchema);

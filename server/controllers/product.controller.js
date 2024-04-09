@@ -3,7 +3,7 @@ import { deleteImage, uploadOnCloudinary } from "../utils/cloudinary.js";
 
 export const createProduct = async (req, res) => {
     const { name, description, basePrice, discountedPrice, category, stock, productQuantity } = req.body;
-    const image = req.file.path;
+    const image = req.file?.path;
 
     if (!name || !description || !basePrice || !discountedPrice || !category || !stock || !productQuantity || !image) {
         return res.status(400).json({
@@ -103,4 +103,51 @@ export const updateProduct = async (req, res) => {
         message: "Product updated successfully",
         updatedProduct
     })
+}
+export const getProductsByCategory = async (req, res) => {
+    try {
+        const { category } = req.params;
+
+        if (!category) {
+            return res.status(400).json({ message: "Category parameter is required" });
+        }
+
+        const products = await Product.find({ category });
+
+        if (!products) {
+            return res.status(404).json({ message: "Products not found" });
+        }
+
+        res.status(200).json({
+            message: "Products fetched successfully",
+            products
+        });
+    } catch (error) {
+        console.error("Error fetching products:", error);
+        res.status(500).json({ message: "Failed to fetch products" });
+    }
+};
+
+export const getProductsBySearch = async (req, res) => {
+    try {
+        const { query } = req.params;
+        
+        if (!query) {
+            return res.status(400).json({ message: "Query parameter is required" });
+        }
+
+        console.log(query);
+        
+        // const products = await Product.find({ name: { $regex: query, $options: "i" } });
+        // if (!products) {
+        //     return res.status(404).json({ message: "Products not found" });
+        // }
+        // res.status(200).json({
+        //     message: "Products fetched successfully",
+        //     products
+        // });
+    } catch (error) {
+        console.error("Error fetching products:", error);
+        res.status(500).json({ message: "Failed to fetch products" });
+    }
 }

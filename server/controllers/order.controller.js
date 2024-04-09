@@ -50,7 +50,6 @@ export const getOrders = async (req, res) => {
 export const getOrderById = async (req, res) => {
     const { id } = req.params;
 
-    console.log(id);
 
     if (!id) {
         return res.status(400).json({ message: "Order ID is required" });
