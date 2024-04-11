@@ -27,6 +27,8 @@ const Login = () => {
   const [login, { isLoading: isLoginLoading }] = useLoginMutation();
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  
   
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -34,6 +36,10 @@ const Login = () => {
     if (!email || !password) return toast.error("All fields are required");
     try {
       const res = await login({ email, password });
+      if (res.data.user) {
+        dispatch(userExists(res.data.user));
+       ("/");
+      }
       toast.success(res.data.message);
       setEmail("");
       setPassword("");

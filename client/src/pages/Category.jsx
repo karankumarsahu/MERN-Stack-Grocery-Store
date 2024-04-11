@@ -1,5 +1,13 @@
-import { Box, Button, Modal, Paper, Stack, Typography } from "@mui/material";
-import React from "react";
+import {
+  Box,
+  Button,
+  Modal,
+  Paper,
+  Stack,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
+import React, { useEffect } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import BakeryImg from "../assets/Bakery Category.png";
 import DrinksImg from "../assets/Drinks Category.png";
@@ -9,55 +17,96 @@ import PersonalCareImg from "../assets/Personal Care Category.png";
 import SnaksImg from "../assets/Snaks Category.png";
 import VegetablesImg from "../assets/Vegetables Category.png";
 import ShoppingBasketIcon from "@mui/icons-material/ShoppingBasket";
+import {
+  useGetProductByIdQuery,
+  useGetProductsByCategoryQuery,
+} from "../redux/api/productApi";
+import { addToCart } from "../redux/reducer/cartReducer";
+import { useDispatch } from "react-redux";
+import { toast } from "react-hot-toast";
+
 
 const Category = () => {
   const { categoryName } = useParams();
+
+  const { data, isLoading } = useGetProductsByCategoryQuery(categoryName, {
+    refetchOnMountOrArgChange: true,
+  });
+
+  const productsData = data?.products;
+  console.log(productsData);
+
   return (
     <>
-      <Box sx={{ width: "100%", height: "auto", mb: "2rem" }}>
-        <Box
-          sx={{
-            width: "100%",
-            height: "5rem",
-            backgroundColor: "#308C67",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            fontFamily: "Poppins, sans-serif",
-            color: "white",
-            fontSize: "1.5rem",
-            fontWeight: "700",
-            letterSpacing: "0.1rem",
-            textTransform: "uppercase",
-          }}
-        >
-          {categoryName}
-        </Box>
-        <CategoryCards />
-        <Box
-          sx={{
-            width: "90%",
-            height: "100%",
-            margin: "auto",
-            mt: "2rem",
-            display: "grid",
-            gridTemplateColumns: [
-              "repeat(1, 1fr)",
-              "repeat(2, 1fr)",
-              "repeat(2, 1fr)",
-              "repeat(4, 1fr)",
-            ],
-            placeItems: "center",
+      {isLoading ? (
+        <CircularProgress />
+      ) : (
+        <Box sx={{ width: "100%", height: "auto", mb: "2rem" }}>
+          <Box
+            sx={{
+              width: "100%",
+              height: "5rem",
+              backgroundColor: "#308C67",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              fontFamily: "Poppins, sans-serif",
+              color: "white",
+              fontSize: "1.5rem",
+              fontWeight: "700",
+              letterSpacing: "0.1rem",
+              textTransform: "uppercase",
+            }}
+          >
+            {categoryName}
+          </Box>
+          <CategoryCards />
+          <Box
+            sx={{
+              width: "90%",
+              height: "100%",
+              margin: "auto",
+              mt: "2rem",
+              display: "grid",
+              gridTemplateColumns: [
+                "repeat(1, 1fr)",
+                "repeat(2, 1fr)",
+                "repeat(2, 1fr)",
+                "repeat(4, 1fr)",
+              ],
+              placeItems: "center",
 
-            gap: "1rem",
-          }}
-        >
-          <ProductCard />
-          <ProductCard />
-          <ProductCard />
-          <ProductCard />
+              gap: "1rem",
+            }}
+          >
+            {productsData && productsData.length > 0 ? (
+              productsData.map((product) => (
+                <ProductCard
+                  key={product._id}
+                  image={product.image}
+                  name={product.name}
+                  basePrice={product.basePrice}
+                  discountedPrice={product.discountedPrice}
+                  product={product}
+                  _id={product._id}
+                />
+              ))
+            ) : (
+              <Typography
+                sx={{
+                  textAlign: "center",
+                  fontFamily: "Poppins, sans-serif",
+                  fontSize: "1.5rem",
+                  fontWeight: "700",
+                  color: "#1D825A",
+                }}
+              >
+                No products found
+              </Typography>
+            )}
+          </Box>
         </Box>
-      </Box>
+      )}
     </>
   );
 };
@@ -167,10 +216,30 @@ const CategoryCards = () => {
   );
 };
 
-const ProductCard = () => {
+const ProductCard = ({ product , image, name, basePrice, discountedPrice, _id}) => {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
 
+  const [quantity, setQuantity] = React.useState(1); // State for quantity
+
+  const dispatch = useDispatch();
+
+
+  const addToCartHandler = () => {
+    dispatch(
+      addToCart({
+        id: _id,
+        name: name,
+        image: image,
+        basePrice: basePrice,
+        discountedPrice: discountedPrice,
+        quantity: quantity,
+      })
+    );
+    toast.success("Item added to cart");
+    setOpen(false);
+  };
+  
   return (
     <>
       <Paper
@@ -193,7 +262,7 @@ const ProductCard = () => {
       >
         <img
           style={{ width: "12rem", height: "auto" }}
-          src="https://res.cloudinary.com/dvytn4u6i/image/upload/v1710678502/carrot_png_7crm54jnhoaaa46f_24b758a1ec.png"
+          src={image}
           alt=""
         />
         <Box
@@ -216,7 +285,7 @@ const ProductCard = () => {
               textOverflow: "ellipsis",
             }}
           >
-            Red Carrot Vegetables
+            {name}
           </Typography>
           <Stack direction={"row"} gap={"0.8rem"} mt={"0.5rem"}>
             <Typography
@@ -224,7 +293,7 @@ const ProductCard = () => {
               fontSize={"1rem"}
               fontWeight={"700"}
             >
-              ₹100
+              ₹{discountedPrice}
             </Typography>
             <Typography
               fontFamily={"Poppins, sans-serif"}
@@ -233,7 +302,7 @@ const ProductCard = () => {
               sx={{ textDecoration: "line-through" }}
             >
               {" "}
-              ₹120
+              ₹{basePrice}
             </Typography>
           </Stack>
           <Button
@@ -253,14 +322,55 @@ const ProductCard = () => {
             Add To Cart
           </Button>
         </Box>
-        <AddToCardModal open={open} setOpen={setOpen} />
+        <AddToCardModal productId={_id} open={open} setOpen={setOpen} quantity={quantity} setQuantity={setQuantity} addToCartHandler={addToCartHandler} />
       </Paper>
     </>
   );
 };
 
-const AddToCardModal = ({ open, setOpen }) => {
+const AddToCardModal = ({ open, setOpen, productId, quantity, setQuantity, addToCartHandler }) => {
   const handleClose = () => setOpen(false);
+
+  const [product, setProduct] = React.useState(null);
+
+  const { data: productData } = useGetProductByIdQuery(productId, {
+    skip: !open,
+  });
+
+
+  useEffect(() => {
+    if (productData) {
+      setProduct(productData.product);
+      console.log(productData);
+    }
+  }, [productData]);
+
+  const incrementHandler = () => {
+    if (quantity < product.stock) {
+      setQuantity(quantity + 1);
+    }
+
+    if (quantity === product.stock) {
+      setQuantity(quantity);
+    }
+  };
+
+  const decrementHandler = () => {
+    if (quantity > 1) {
+      setQuantity(quantity - 1);
+    }
+    if (quantity === 1) {
+      setQuantity(quantity);
+    }
+  };
+
+  const itemTotalPrice = product?.discountedPrice * quantity;
+
+
+  const handleClickAddToCart = () => {
+    console.log("Add to cart clicked");
+    addToCartHandler(); // Call addToCartHandler function
+  };
 
   return (
     <Modal
@@ -310,7 +420,7 @@ const AddToCardModal = ({ open, setOpen }) => {
             {/* Product Image */}
             <img
               style={{ width: "15rem", height: "auto" }}
-              src="https://res.cloudinary.com/dvytn4u6i/image/upload/v1710678506/purepng_com_orange_orangeorangefruitbitter_orangeorangesclip_art_17015273374288pjtg_08c2714871.png"
+              src={product?.image}
               alt=""
             />
           </Box>
@@ -321,17 +431,16 @@ const AddToCardModal = ({ open, setOpen }) => {
               fontSize={"1.5rem"}
               fontWeight={"700"}
             >
-              Fresh Orange 6 pcs
+              {product?.name}
             </Typography>
             {/* Product Description */}
             <Typography
               fontFamily={"Poppins, sans-serif"}
               fontSize={"0.8rem"}
               mt={"0.5rem"}
+              textTransform={"capitalize"}
             >
-              Oranges are a favourite snack for many people. They can be eaten
-              out-of-hand or used as a garnish. Besides orange juices, which are
-              very popular worldwide,
+              {product?.description}
             </Typography>
             {/* Product Price */}
             <Typography
@@ -342,7 +451,7 @@ const AddToCardModal = ({ open, setOpen }) => {
                 mt: "1rem",
               }}
             >
-              ₹ 100
+              ₹ {product?.discountedPrice}
             </Typography>
             {/* Product Quantity */}
             <Typography
@@ -352,7 +461,7 @@ const AddToCardModal = ({ open, setOpen }) => {
               mt={"0.8rem"}
             >
               {" "}
-              Qunatity (6 pcs)
+              Qunatity ({product?.productQuantity})
             </Typography>
             {/* Item Quantity and Item Total Price */}
             <Stack direction={"row"} gap={"1rem"} alignItems={"center"}>
@@ -374,16 +483,24 @@ const AddToCardModal = ({ open, setOpen }) => {
                   transition: "all 0.3s ease-in-out",
                 }}
               >
-                <Button variant="text" sx={{ fontSize: "1rem" }}>
+                <Button
+                  onClick={decrementHandler}
+                  variant="text"
+                  sx={{ fontSize: "1rem" }}
+                >
                   -
                 </Button>
                 <Typography
                   fontFamily={"Poppins, sans-serif"}
                   fontWeight={"600"}
                 >
-                  1
+                  {quantity}
                 </Typography>
-                <Button variant="text" sx={{ fontSize: "1rem" }}>
+                <Button
+                  onClick={incrementHandler}
+                  variant="text"
+                  sx={{ fontSize: "1rem" }}
+                >
                   +
                 </Button>
               </Box>
@@ -394,10 +511,11 @@ const AddToCardModal = ({ open, setOpen }) => {
                 fontSize={"1.5rem"}
               >
                 {" "}
-                = ₹ 100
+                = ₹ {itemTotalPrice}
               </Typography>
             </Stack>
             <Button
+            onClick={handleClickAddToCart}
               variant="contained"
               fullWidth
               sx={{
@@ -425,7 +543,10 @@ const AddToCardModal = ({ open, setOpen }) => {
               fontWeight={"600"}
               mt={"1rem"}
             >
-              Category: <span style={{ fontWeight: "400" }}>Fruits</span>
+              Category:{" "}
+              <span style={{ fontWeight: "400", textTransform: "capitalize" }}>
+                {product?.category}
+              </span>
             </Typography>
           </Box>
         </Stack>

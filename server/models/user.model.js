@@ -33,9 +33,7 @@ const userSchema = mongoose.Schema({
     },
 
     myOrders: [{ type: mongoose.Schema.Types.ObjectId, ref: "Order" }]
-}, {
-    timestamps: true
-});
+}, {timestamps: true});
 
 // Define pre-save hook to hash the password before saving
 userSchema.pre("save", async function (next) {

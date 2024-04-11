@@ -1,6 +1,6 @@
 import { Order } from "../models/order.model.js";
 import { User } from "../models/user.model.js";
-
+import { Product } from "../models/product.model.js";
 
 
 export const createOrder = async (req, res) => {
@@ -17,19 +17,24 @@ export const createOrder = async (req, res) => {
             return res.status(400).json({ message: "Order not created" });
         }
 
-        // Find the user by ID
         const userToUpdate = await User.findById(user);
 
-        // Check if the user exists and if the user's orders array exists
         if (!userToUpdate || !userToUpdate.myOrders) {
             return res.status(404).json({ message: "User not found or orders array not defined" });
         }
 
-        // Push the entire order object to the user's orders array
         userToUpdate.myOrders.push(order);
 
-        // Save the updated user
         await userToUpdate.save();
+
+        for (let i = 0; i < orderItems.length; i++) {
+            const order = orderItems[i];
+            const product = await Product.findById(order.product);
+            if (product) {
+                product.stock -= order.quantity;
+                await product.save();
+            }
+        }
 
         res.status(201).json({ message: "Order created successfully", order });
 

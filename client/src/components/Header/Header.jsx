@@ -13,9 +13,9 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import BakeryImg from "../../assets/Bakery Category.png";
 import DrinksImg from "../../assets/Drinks Category.png";
@@ -27,6 +27,7 @@ import VegetablesImg from "../../assets/Vegetables Category.png";
 import logo from "../../assets/logo.png";
 import { useLogoutMutation } from "../../redux/api/userApi";
 import { userNotExists } from "../../redux/reducer/userReducer";
+import { calculatePrice, removeCartItem } from "../../redux/reducer/cartReducer";
 
 const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
@@ -61,6 +62,8 @@ const Header = () => {
   const handleNavigate = () => {
     navigate("/");
   };
+
+  const { cartItems } = useSelector((state) => state.cartReducer);
 
   return (
     <>
@@ -200,7 +203,7 @@ const Header = () => {
                     fontWeight: "500",
                   }}
                 >
-                  0
+                  {cartItems.length}
                 </Box>
               </Box>
 
@@ -261,6 +264,17 @@ const Header = () => {
 };
 
 const CartDrawer = ({ toggleDrawer, open, setOpen }) => {
+  
+    const { cartItems, subtotal } = useSelector((state) => state.cartReducer);
+    console.log("cart", cartItems);
+
+    const dispatch = useDispatch();
+    
+    useEffect(() => {
+      dispatch(calculatePrice());
+
+    }, [cartItems]);
+  
   return (
     <Drawer open={open} onClose={toggleDrawer(false)}>
       <Box
@@ -297,14 +311,17 @@ const CartDrawer = ({ toggleDrawer, open, setOpen }) => {
               overflowX: "hidden",
             }}
           >
-            <CartItem
-              itemImage={
-                "https://res.cloudinary.com/dvytn4u6i/image/upload/v1710678502/carrot_png_7crm54jnhoaaa46f_24b758a1ec.png"
-              }
-              itemName={"Red Carrot Vegetables"}
-              itemPrice={2000}
-              itemQuantity={1}
-            />
+           {cartItems.length > 0 ? (
+              cartItems.map((item) => (
+                <CartItem
+                  key={item.productId}
+                  itemImage={item.image}
+                  itemName={item.name}
+                  itemPrice={item.price}
+                  itemQuantity={item.quantity}
+                  itemId={item.id}
+                />
+              ) )) : <Typography sx={{ fontFamily: "Poppins, sans-serif", fontWeight: "600", fontSize: "1.2rem", mt: "1rem" }}>No items in cart</Typography> }
           </Box>
           <Box sx={{ width: "100%", height: "100%" }}>
             <Stack
@@ -329,10 +346,11 @@ const CartDrawer = ({ toggleDrawer, open, setOpen }) => {
                   fontWeight: "600",
                 }}
               >
-                Rs 2000
+                Rs {subtotal}
               </Typography>
             </Stack>
             <Button
+            onClick={() => setOpen(true)}
             component={Link}
             to="/checkout"
               variant="contained"
@@ -357,7 +375,16 @@ const CartDrawer = ({ toggleDrawer, open, setOpen }) => {
   );
 };
 
-const CartItem = ({ itemImage, itemName, itemPrice, itemQuantity }) => {
+const CartItem = ({ itemImage, itemName, itemPrice, itemQuantity , itemId}) => {
+  
+  const dispatch = useDispatch();
+
+  const removeFromCart = () => {
+    dispatch(removeCartItem(itemId));
+    toast.success("Item removed from cart");
+  }
+  
+  
   return (
     <Box sx={{ width: "100%", mt: "1rem" }}>
       <Stack direction={"row"} gap={"1rem"} alignItems={"center"}>
@@ -372,11 +399,12 @@ const CartItem = ({ itemImage, itemName, itemPrice, itemQuantity }) => {
           alt=""
         />
         <Stack
+        width={"100%"}
           direction={"row"}
           justifyContent={"space-between"}
           alignItems={"center"}
         >
-          <Box>
+          <Box sx={{ width: "90%" }}>
             <Typography
               sx={{
                 width: "90%",
@@ -396,7 +424,7 @@ const CartItem = ({ itemImage, itemName, itemPrice, itemQuantity }) => {
               Rs {itemPrice}
             </Typography>
           </Box>
-          <DeleteIcon />
+          <DeleteIcon onClick={removeFromCart} sx={{ cursor: "pointer" }}  />
         </Stack>
       </Stack>
     </Box>

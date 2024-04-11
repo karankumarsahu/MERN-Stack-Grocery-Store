@@ -1,5 +1,5 @@
 import express from "express";
-import { createProduct, deleteProduct, getAllProducts, getProductById, getProductsByCategory, getProductsBySearch, updateProduct } from "../controllers/product.controller.js";
+import { createProduct, deleteProduct, getAllProducts, getLatestProducts, getProductById, getProductsByCategory, getProductsBySearch, updateProduct } from "../controllers/product.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyToken } from "../middlewares/auth.middleware.js";
 import { verifyAdmin } from "../middlewares/admin.middleware.js";
@@ -10,11 +10,14 @@ router.post("/create", verifyToken, verifyAdmin, upload.single("image"), createP
 
 router.get("/all", getAllProducts)
 
+
 router.get("/:id", getProductById)
 
 router.get("/category/:category", getProductsByCategory);
 
 router.get("/search/:query", getProductsBySearch)
+
+router.get("/latest", getLatestProducts)
 
 router.delete("/delete", verifyToken, verifyAdmin, deleteProduct)
 

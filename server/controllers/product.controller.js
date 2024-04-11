@@ -131,21 +131,35 @@ export const getProductsByCategory = async (req, res) => {
 export const getProductsBySearch = async (req, res) => {
     try {
         const { query } = req.params;
-        
+
         if (!query) {
             return res.status(400).json({ message: "Query parameter is required" });
         }
 
-        console.log(query);
-        
-        // const products = await Product.find({ name: { $regex: query, $options: "i" } });
-        // if (!products) {
-        //     return res.status(404).json({ message: "Products not found" });
-        // }
-        // res.status(200).json({
-        //     message: "Products fetched successfully",
-        //     products
-        // });
+        const products = await Product.find({ name: { $regex: query, $options: "i" } });
+        if (!products) {
+            return res.status(404).json({ message: "Products not found" });
+        }
+        res.status(200).json({
+            message: "Products fetched successfully",
+            products
+        });
+    } catch (error) {
+        console.error("Error fetching products:", error);
+        res.status(500).json({ message: "Failed to fetch products" });
+    }
+}
+
+export const getLatestProducts = async (req, res) => {
+    try {
+        const products = await Product.find({}).sort({ createdAt: -1 }).limit(8);
+        if (!products) {
+            return res.status(404).json({ message: "Products not found" });
+        }
+        res.status(200).json({
+            message: "Products fetched successfully",
+            products
+        });
     } catch (error) {
         console.error("Error fetching products:", error);
         res.status(500).json({ message: "Failed to fetch products" });
