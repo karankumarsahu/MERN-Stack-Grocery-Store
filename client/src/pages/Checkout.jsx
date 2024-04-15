@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import razarpay from "../assets/Razarpay.svg";
 import logo from "../assets/logo.png";
 import { saveShippingInfo } from "../redux/reducer/cartReducer";
+import {server} from "../redux/api/userApi"
 
 const Checkout = () => {
   const [name, setName] = useState("");
@@ -81,7 +82,7 @@ const Checkout = () => {
 
     const {
       data: { key, order },
-    } = await axios.post("http://localhost:8000/api/payment/razorpay", {
+    } = await axios.post(`${server}/api/payment/razorpay`, {
       amount: total,
     });
 
@@ -95,7 +96,7 @@ const Checkout = () => {
       description: "This is a test mode payment",
       image: logo,
       order_id: order.id,
-      callback_url: "http://localhost:8000/api/payment/paymentverification",
+      callback_url: `${server}/api/payment/paymentverification`,
       prefill: {
         name,
         email,
