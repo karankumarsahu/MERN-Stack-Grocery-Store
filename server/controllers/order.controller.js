@@ -4,14 +4,14 @@ import { Product } from "../models/product.model.js";
 
 
 export const createOrder = async (req, res) => {
-    const { user, orderItems, billingAddress, paymentMethod, subtotal, tax, shippingCharges, total } = req.body;
+    const { user, orderItems, billingAddress,  subtotal, tax, shippingCharges, total } = req.body;
 
-    if (!user || !orderItems || !billingAddress || !paymentMethod || !subtotal || !tax || !shippingCharges || !total) {
+    if (!user || !orderItems || !billingAddress  || !subtotal || !tax || !shippingCharges || !total) {
         return res.status(400).json({ message: "All fields are required" });
     }
 
     try {
-        const order = await Order.create({ user, orderItems, billingAddress, paymentMethod, subtotal, tax, shippingCharges, total });
+        const order = await Order.create({ user, orderItems, billingAddress,  subtotal, tax, shippingCharges, total });
 
         if (!order) {
             return res.status(400).json({ message: "Order not created" });
@@ -31,7 +31,7 @@ export const createOrder = async (req, res) => {
             const order = orderItems[i];
             const product = await Product.findById(order.product);
             if (product) {
-                product.stock -= order.quantity;
+                product.stock -= order.qty;
                 await product.save();
             }
         }
@@ -52,16 +52,16 @@ export const getOrders = async (req, res) => {
     }
 }
 
-export const getOrderById = async (req, res) => {
-    const { id } = req.params;
+export const getOrderByUser = async (req, res) => {
+    const { id } = req.user;
 
 
     if (!id) {
-        return res.status(400).json({ message: "Order ID is required" });
+        return res.status(400).json({ message: "User ID is required" });
     }
 
     try {
-        const order = await Order.findById(id).populate("user");
+        const order = await Order.find({ user: id });
 
         if (!order) {
             return res.status(404).json({ message: "Order not found" });

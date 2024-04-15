@@ -59,7 +59,6 @@ export const userLogin = async (req, res) => {
         const options = {
             httpOnly: true,
             secure: true,
-            maxAge: 1000 * 60 * 60 * 24, // 1 day            
         };
 
         const token = generateAccessToken(user._id);

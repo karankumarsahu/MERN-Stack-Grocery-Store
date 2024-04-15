@@ -1,4 +1,4 @@
-import {createSlice} from "@reduxjs/toolkit"
+import { createSlice } from "@reduxjs/toolkit"
 
 const initialState = {
     loading: true,
@@ -8,6 +8,7 @@ const initialState = {
     tax: 0,
     total: 0,
     billingAddress: {
+        name: "",
         email: "",
         state: "",
         city: "",
@@ -21,13 +22,13 @@ export const cartReducer = createSlice({
     name: "cartReducer",
     initialState,
     reducers: {
-        addToCart : (state, action) => {
+        addToCart: (state, action) => {
             state.loading = true;
 
             const index = state.cartItems.findIndex(item => item.id === action.payload.id)
 
             if (index !== -1) {
-                state.cartItems[index].quantity += action.payload.quantity;
+                state.cartItems[index].qty += action.payload.qty;
             }
 
             else {
@@ -44,7 +45,7 @@ export const cartReducer = createSlice({
         },
 
         calculatePrice: (state) => {
-            state.subtotal = state.cartItems.reduce((acc, item) => acc + item.discountedPrice * item.quantity, 0);
+            state.subtotal = state.cartItems.reduce((acc, item) => acc + item.discountedPrice * item.qty, 0);
             state.tax = state.subtotal * 0.09;
             state.shippingCharges = 100;
             state.total = Math.round(state.subtotal + state.tax + state.shippingCharges);
@@ -53,8 +54,8 @@ export const cartReducer = createSlice({
 
         saveShippingInfo: (state, action) => {
             state.shippingInfo = action.payload;
-          },
-          resetCart: () => initialState,
+        },
+        resetCart: () => initialState,
     }
 })
 

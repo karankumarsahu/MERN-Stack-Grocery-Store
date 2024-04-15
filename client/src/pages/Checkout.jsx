@@ -6,20 +6,86 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React from "react";
-import razarpay from "../assets/Razarpay.svg";
 import axios from "axios";
+import React, { useState } from "react";
+import { toast } from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import razarpay from "../assets/Razarpay.svg";
 import logo from "../assets/logo.png";
+import { saveShippingInfo } from "../redux/reducer/cartReducer";
 
 const Checkout = () => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [state, setState] = useState("");
+  const [city, setCity] = useState("");
+  const [district, setDistrict] = useState("");
+  const [address, setAddress] = useState("");
+  const [pincode, setPincode] = useState("");
+
+  const dispatch = useDispatch();
+
+  const { cartItems, subtotal, tax, shippingCharges, total } = useSelector(
+    (state) => state.cartReducer
+  );
+
+  const { user } = useSelector((state) => state.userReducer);
+
+
   const checkoutHandler = async () => {
+    if (
+      !name ||
+      !email ||
+      !state ||
+      !city ||
+      !district ||
+      !address ||
+      !pincode
+    ) {
+      return toast.error("Please fill all the fields");
+    } else {
+      dispatch(
+        saveShippingInfo({
+          name,
+          email,
+          state,
+          city,
+          district,
+          address,
+          pincode,
+        })
+      );
+    }
+
+    const cartData = {
+      user: user?._id,
+      orderItems: cartItems,
+      shippingInfo: {
+        name,
+        email,
+        state,
+        city,
+        district,
+        address,
+        pincode,
+      },
+      subtotal,
+      tax,
+      shippingCharges,
+      total,
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cartData));
+
+
+
     const {
       data: { key, order },
     } = await axios.post("http://localhost:8000/api/payment/razorpay", {
-      amount: "500",
+      amount: total,
     });
 
-    console.log(order);
+  
 
     const options = {
       key: key,
@@ -31,9 +97,9 @@ const Checkout = () => {
       order_id: order.id,
       callback_url: "http://localhost:8000/api/payment/paymentverification",
       prefill: {
-        name: "Karan Sahu",
-        email: "example@example.com",
-        contact: "9000090000",
+        name,
+        email,
+        contact: "0000000000",
       },
       notes: {
         address: "Razorpay Corporate Office",
@@ -42,11 +108,10 @@ const Checkout = () => {
         color: "#3399cc",
       },
     };
-    const razor = new window.Razorpay(options);
-      razor.open();
-  }
 
-  
+    const razor = new window.Razorpay(options);
+    razor.open();
+  };
 
   return (
     <>
@@ -100,11 +165,15 @@ const Checkout = () => {
                     sx={{ fontFamily: "Poppins, sans-serif" }}
                     fullWidth
                     label="Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                   />
                   <TextField
                     sx={{ fontFamily: "Poppins, sans-serif" }}
                     fullWidth
                     label="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                   />
                 </Stack>
 
@@ -114,11 +183,15 @@ const Checkout = () => {
                     sx={{ fontFamily: "Poppins, sans-serif" }}
                     fullWidth
                     label="State"
+                    value={state}
+                    onChange={(e) => setState(e.target.value)}
                   />
                   <TextField
                     sx={{ fontFamily: "Poppins, sans-serif" }}
                     fullWidth
                     label="City"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
                   />
                 </Stack>
 
@@ -128,11 +201,15 @@ const Checkout = () => {
                     sx={{ fontFamily: "Poppins, sans-serif" }}
                     fullWidth
                     label="District"
+                    value={district}
+                    onChange={(e) => setDistrict(e.target.value)}
                   />
                   <TextField
                     sx={{ fontFamily: "Poppins, sans-serif" }}
                     fullWidth
                     label="Pincode"
+                    value={pincode}
+                    onChange={(e) => setPincode(e.target.value)}
                   />
                 </Stack>
                 {/* Address */}
@@ -140,6 +217,8 @@ const Checkout = () => {
                   sx={{ fontFamily: "Poppins, sans-serif" }}
                   fullWidth
                   label="Address"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
                 />
               </Box>
             </Box>
@@ -172,7 +251,7 @@ const Checkout = () => {
                   fontFamily={"Poppins, sans-serif"}
                   fontWeight={"700"}
                 >
-                  Total Cart (2)
+                  Total Cart ({cartItems.length})
                 </Typography>
               </Box>
 
@@ -188,7 +267,7 @@ const Checkout = () => {
                     fontFamily={"Poppins, sans-serif"}
                     fontWeight={"700"}
                   >
-                    Rs 100
+                    Rs {subtotal}
                   </Typography>
                 </Stack>
 
@@ -209,7 +288,7 @@ const Checkout = () => {
                     fontFamily={"Poppins, sans-serif"}
                     fontWeight={500}
                   >
-                    Rs 50
+                    Rs {shippingCharges}
                   </Typography>
                 </Stack>
 
@@ -228,7 +307,7 @@ const Checkout = () => {
                     fontFamily={"Poppins, sans-serif"}
                     fontWeight={500}
                   >
-                    Rs 9.00
+                    Rs {tax}
                   </Typography>
                 </Stack>
                 <Divider sx={{ mt: "1rem" }} />
@@ -248,7 +327,7 @@ const Checkout = () => {
                     fontFamily={"Poppins, sans-serif"}
                     fontWeight={700}
                   >
-                    Rs 159
+                    Rs {total}
                   </Typography>
                 </Stack>
                 <Button

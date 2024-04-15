@@ -233,7 +233,8 @@ const ProductCard = ({ product , image, name, basePrice, discountedPrice, _id}) 
         image: image,
         basePrice: basePrice,
         discountedPrice: discountedPrice,
-        quantity: quantity,
+        qty: quantity,
+        product:_id
       })
     );
     toast.success("Item added to cart");

@@ -1,12 +1,56 @@
-import React from "react";
-import { Box, Paper, Typography, Button } from "@mui/material";
-import { useSearchParams } from "react-router-dom";
-import {Link} from "react-router-dom"
+import { Box, Button, Paper, Typography } from "@mui/material";
+import React, { useEffect } from "react";
+import { toast } from "react-hot-toast";
+import { Link, useSearchParams } from "react-router-dom";
+import { useCreateOrderMutation } from "../redux/api/orderApi";
 
 const PaymentSuccess = () => {
   const seachQuery = useSearchParams()[0];
 
   const referenceNum = seachQuery.get("reference");
+
+  const [data] = useCreateOrderMutation();
+
+  const placeOrder = async () => {
+    try {
+      const {
+        user,
+        orderItems,
+        shippingInfo,
+        subtotal,
+        tax,
+        shippingCharges,
+        total,
+      } = JSON.parse(localStorage.getItem("cart"));
+
+      const res = await data({
+        user,
+        orderItems,
+        billingAddress: shippingInfo,
+        subtotal,
+        tax,
+        shippingCharges,
+        total,
+      });
+
+      console.log(res);
+
+      toast.success(res.data?.message);
+    } catch (error) {
+      console.error("Error placing order:", error);
+    }
+  };
+  useEffect(() => {
+    let isMounted = true;
+
+    if (isMounted) {
+      placeOrder();
+    }
+  
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <>
@@ -22,7 +66,7 @@ const PaymentSuccess = () => {
         <Paper
           elevation={8}
           sx={{
-            width: [ "90%", "60%",  "50%"],
+            width: ["90%", "60%", "50%"],
             height: "50%",
             display: "flex",
             justifyContent: "center",
@@ -47,12 +91,12 @@ const PaymentSuccess = () => {
               width: "100%",
               display: "grid",
               gridTemplateColumns: ["repeat(1, 1fr)", "repeat(2, 1fr)"],
-              gap: [ "0.5rem", "1rem"],
+              gap: ["0.5rem", "1rem"],
               paddingX: "3rem",
             }}
           >
             <Button
-            component={Link}
+              component={Link}
               to="/myorders"
               variant="contained"
               sx={{
@@ -82,9 +126,9 @@ const PaymentSuccess = () => {
                 bgcolor: "transparent",
                 border: "1px solid #1D825A",
                 "&:hover": {
-                    bgcolor: "#1D825A",
-                    color   : "white"
-                }
+                  bgcolor: "#1D825A",
+                  color: "white",
+                },
               }}
             >
               Go to Home

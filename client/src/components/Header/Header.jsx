@@ -266,7 +266,6 @@ const Header = () => {
 const CartDrawer = ({ toggleDrawer, open, setOpen }) => {
   
     const { cartItems, subtotal } = useSelector((state) => state.cartReducer);
-    console.log("cart", cartItems);
 
     const dispatch = useDispatch();
     
@@ -314,11 +313,11 @@ const CartDrawer = ({ toggleDrawer, open, setOpen }) => {
            {cartItems.length > 0 ? (
               cartItems.map((item) => (
                 <CartItem
-                  key={item.productId}
+                  key={item.name}
                   itemImage={item.image}
                   itemName={item.name}
-                  itemPrice={item.price}
-                  itemQuantity={item.quantity}
+                  itemPrice={item.discountedPrice}
+                  itemQuantity={item.qty}
                   itemId={item.id}
                 />
               ) )) : <Typography sx={{ fontFamily: "Poppins, sans-serif", fontWeight: "600", fontSize: "1.2rem", mt: "1rem" }}>No items in cart</Typography> }

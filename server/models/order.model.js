@@ -23,6 +23,7 @@ const orderSchema = mongoose.Schema({
     ],
 
     billingAddress: {
+        name: { type: String, required: true },
         email: { type: String, required: true },
         state: { type: String, required: true },
         city: { type: String, required: true },
@@ -31,11 +32,6 @@ const orderSchema = mongoose.Schema({
         address: { type: String, required: true },
     },
 
-    paymentMethod: {
-        type: String,
-        required: true,
-        enum: ["cod", "online"]
-    },
 
     subtotal: {
         type: Number,

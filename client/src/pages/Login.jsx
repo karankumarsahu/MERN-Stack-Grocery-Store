@@ -38,7 +38,11 @@ const Login = () => {
       const res = await login({ email, password });
       if (res.data.user) {
         dispatch(userExists(res.data.user));
-       ("/");
+        if(res.data.user.role==="admin"){
+          navigate("/admin/dashboard");
+        }else{
+          navigate("/");
+        }
       }
       toast.success(res.data.message);
       setEmail("");

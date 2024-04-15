@@ -1,5 +1,5 @@
 import React from "react";
-import { Navigate, Outlet, useNavigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 
 const ProtectedRoute = ({
   isAuthenticated,
@@ -7,7 +7,7 @@ const ProtectedRoute = ({
   adminOnly,
   admin,
   redirect = "/login",
-}) => {
+  }) => {
   if (!isAuthenticated) return <Navigate to={redirect} />;
 
   if (adminOnly && !admin) return <Navigate to={redirect} />;
